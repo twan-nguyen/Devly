@@ -3,7 +3,7 @@
 
 #include <Security/Security.h>
 
-/// Acquire admin authorization (shows password dialog on first call, cached for session).
+/// Acquire admin authorization (shows password dialog on first call, cached for up to 2 hours).
 /// Returns errAuthorizationSuccess on success.
 OSStatus acquireAuthorization(void);
 
