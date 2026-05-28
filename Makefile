@@ -1,6 +1,6 @@
 APP_NAME = Hosven
 # x-release-please-start-version
-VERSION = 1.1.0
+VERSION = 1.1.1
 # x-release-please-end
 BUILD_DIR = build
 RELEASE_DIR = release
