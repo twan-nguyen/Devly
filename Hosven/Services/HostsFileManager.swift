@@ -647,8 +647,12 @@ final class HostsFileManager {
         }
     }
 
+    private func shellEscaped(_ value: String) -> String {
+        "'\(value.replacingOccurrences(of: "'", with: "'\\''"))'"
+    }
+
     func applyChanges() {
-        guard hasUnsavedChanges else { return }
+        guard hasUnsavedChanges, !isApplying else { return }
         isApplying = true
 
         let content = generateHostsContent()
@@ -662,7 +666,8 @@ final class HostsFileManager {
             return
         }
 
-        let command = "cp \(tempPath) /etc/hosts && rm -f \(tempPath) && dscacheutil -flushcache && killall -HUP mDNSResponder 2>/dev/null; true"
+        let escapedTempPath = shellEscaped(tempPath)
+        let command = "cp \(escapedTempPath) /etc/hosts && rm -f \(escapedTempPath) && dscacheutil -flushcache && (killall -HUP mDNSResponder 2>/dev/null || true)"
 
         // Suspend watcher so our own write doesn't show as "external change".
         fileWatcher.suspend()
@@ -694,7 +699,7 @@ final class HostsFileManager {
     }
 
     func applyRawText(_ text: String) {
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty, !isApplying else { return }
         isApplying = true
 
         let content = text.hasSuffix("\n") ? text : text + "\n"
@@ -708,7 +713,8 @@ final class HostsFileManager {
             return
         }
 
-        let command = "cp \(tempPath) /etc/hosts && rm -f \(tempPath) && dscacheutil -flushcache && killall -HUP mDNSResponder 2>/dev/null; true"
+        let escapedTempPath = shellEscaped(tempPath)
+        let command = "cp \(escapedTempPath) /etc/hosts && rm -f \(escapedTempPath) && dscacheutil -flushcache && (killall -HUP mDNSResponder 2>/dev/null || true)"
 
         fileWatcher.suspend()
         runPrivilegedCommand(command) { [weak self] success, error in

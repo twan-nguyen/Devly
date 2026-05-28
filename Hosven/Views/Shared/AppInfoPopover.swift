@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Popover triggered by the title-bar gear button. Shows app identity and
-/// quick menu: Giới thiệu, Kiểm tra cập nhật, Cài đặt, Trang chủ.
+/// quick menu: Giới thiệu, Kiểm tra cập nhật, Cài đặt, Feedback, Trang chủ.
 ///
 /// Update check is delegated to Sparkle via `AutoUpdater` — Sparkle owns all
 /// dialogs (no-update toast, install prompt, progress, relaunch).
@@ -26,6 +26,7 @@ struct AppInfoPopover: View {
             VStack(alignment: .leading, spacing: 2) {
                 menuItem(icon: "info.circle", label: "Giới thiệu", action: showAbout)
                 menuItem(icon: "arrow.down.circle", label: "Kiểm tra cập nhật", action: checkForUpdates)
+                menuItem(icon: "bubble.left.and.bubble.right", label: "Gửi feedback", action: openFeedback)
                 menuItem(icon: "gearshape", label: "Cài đặt…", action: openSettings)
             }
             Divider()
@@ -92,6 +93,24 @@ struct AppInfoPopover: View {
 
     private func openHomepage() {
         guard let url = URL(string: "https://github.com/twan-nguyen/hosven") else { return }
+        openURL(url)
+    }
+
+    private func openFeedback() {
+        var components = URLComponents(string: "https://github.com/twan-nguyen/hosven/issues/new")
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: "Feedback: "),
+            URLQueryItem(name: "body", value: """
+            ## Feedback
+
+
+            ---
+            Hosven \(appVersion) (\(buildNumber))
+            \(ProcessInfo.processInfo.operatingSystemVersionString)
+            """)
+        ]
+
+        guard let url = components?.url else { return }
         openURL(url)
     }
 }

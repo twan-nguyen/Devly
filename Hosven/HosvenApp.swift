@@ -13,7 +13,7 @@ struct HosvenApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "main") {
             MainWindowView()
                 .environment(hostsManager)
                 .environment(envManager)
@@ -93,10 +93,21 @@ struct HosvenApp: App {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        return true
+        if shouldHideDockAfterLastWindowClosed {
+            sender.setActivationPolicy(.accessory)
+        }
+        return false
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         releaseAuthorization()
+    }
+
+    private var shouldHideDockAfterLastWindowClosed: Bool {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: "showMenuBarExtra") == nil {
+            return true
+        }
+        return defaults.bool(forKey: "showMenuBarExtra")
     }
 }
